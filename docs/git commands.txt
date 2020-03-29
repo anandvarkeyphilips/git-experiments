@@ -1,0 +1,142 @@
+Basic Commands after each step
+==============================
+git status
+git log --graph --decorate --oneline --pretty=format:"%C(yellow)%h%Creset%C(cyan)%C(bold)%d%Creset %C(cyan)(%aI)%Creset %C(green)%ae%Creset %s" $(git rev-list -g --all)
+
+
+Git Experiment Steps
+====================
+git init
+
+
+touch a
+git add .
+git commit -m "a"
+
+touch b
+git add .
+git commit -m "b"
+
+
+git branch dev
+git checkout dev
+
+
+touch 1
+git add .
+git commit -m "1"
+
+touch 2
+git add .
+git commit -m "2"
+
+git branch master
+git checkout master
+
+touch c
+git add .
+git commit -m "c"
+
+
+git checkout dev
+
+touch 3
+git add .
+git commit -m "3"
+
+
+#Basic Merge dev with master
+============================
+git checkout master
+git merge dev
+
+
+#Rebasing dev onto master
+=========================
+git checkout dev
+git rebase master
+git checkout master
+git merge dev
+
+#Rebasing with Squashing
+========================
+git checkout dev
+git rebase master
+git checkout master
+git merge --squash dev
+git commit -m "Combined Message Summary of development"
+
+#CherryPicking dev commits to master
+====================================
+git checkout master
+git cherry-pick ..dev
+
+
+Learning Materials::
+===================
+===================
+	https://github.com/git-school/visualizing-git
+	https://git-scm.com/book/en/v2/Git-Branching-Rebasing
+	https://blog.developer.atlassian.com/pull-request-merge-strategies-the-great-debate/
+	https://medium.com/factualopinions/git-to-know-this-before-you-do-trunk-based-development-tbd-476bc8a7c22f
+
+git reset
+=========
+	https://git-scm.com/book/en/v2/Git-Tools-Reset-Demystified
+	--soft: uncommit changes, changes are left staged (index).
+	--mixed (default): uncommit + unstage changes, changes are left in working tree.
+	--hard: uncommit + unstage + delete changes, nothing left.
+	
+
+Revert Rebase Immediately
+=========================
+	git reflog
+	git reset HEAD@{5}
+
+git log
+=======
+	git log --all --graph
+	git log --all --decorate --oneline --graph
+	git log --graph --decorate --oneline $(git rev-list -g --all)
+	git log --all --graph --oneline --simplify-by-decoration --date=short --pretty=format:"%C(yellow)%h%Creset%C(red)%C(bold)%d%Creset%C(white)(%cd)%Creset %s"
+	git log --graph --decorate --oneline --pretty=format:"%C(yellow)%h%Creset%C(cyan)%C(bold)%d%Creset %C(cyan)(%aI)%Creset %C(green)%ae%Creset %s" $(git rev-list -g --all)
+	https://mirrors.edge.kernel.org/pub/software/scm/git/docs/git-log.html#_pretty_formats
+
+
+Replace author info
+===================
+	git filter-branch -f --env-filter \
+	"GIT_AUTHOR_NAME='Anand Varkey Philips'; GIT_AUTHOR_EMAIL='anandvarkeyphilips@gmail.com'; \
+	GIT_COMMITTER_NAME='wrong name'; GIT_COMMITTER_EMAIL='wrongemail.com';" HEAD
+
+
+To remove all dangling commits and those in reflogs:
+====================================================
+	git checkout master
+	git reflog expire --expire-unreachable=now --all
+	git gc --prune=now
+
+Amend First Commit and Rebase
+=============================
+	# Go back to the commit you want to change (detach HEAD)
+	git checkout <sha1_for_commit_to_change>
+
+	# Make any changes now (add your new file) then add them to the index
+	git add <new_files>
+
+	# amend the current commit
+	git commit --amend
+
+	# temporarily tag this new commit
+	# (or you could remember the new commit sha1 manually)
+	git tag tmp
+
+	# go back to the original branch (assume master for this example)
+	git checkout master
+
+	# Replay all the commits after the change onto the new initial commit
+	git rebase --preserve-merges --onto tmp <sha1_for_commit_to_change>
+
+	# remove the temporary tag
+	git tag -d tmp
+	https://stackoverflow.com/questions/7295511/how-to-add-a-file-to-the-first-commit-on-a-git-repo
